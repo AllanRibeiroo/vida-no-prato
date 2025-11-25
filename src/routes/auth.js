@@ -5,27 +5,28 @@ const Usuario = require('../models/usuario');
 const bcrypt = require('bcryptjs');
 
 router.post('/register', async (req, res) => {
-  // Receber dados do corpo da requisição
-  const { nome, email, telefone, senha, cnpj } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ success: false, message: 'Nome, email e senha são obrigatórios' });
-  }
-  const existenteEmail = await Usuario.buscarPorEmail(email);
-  if (existenteEmail) {
-    return res.status(400).json({ success: false, message: 'Email já cadastrado' });
-  }
-  if (cnpj) {
-    const existenteCnpj = await Usuario.buscarPorCnpj(cnpj);
-    if (existenteCnpj) {
-      return res.status(400).json({ success: false, message: 'CNPJ já cadastrado' });
-    }
-  }
   try {
+    // Receber dados do corpo da requisição
+    const { nome, email, telefone, senha, cnpj } = req.body;
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ success: false, message: 'Nome, email e senha são obrigatórios' });
+    }
+    const existenteEmail = await Usuario.buscarPorEmail(email);
+    if (existenteEmail) {
+      return res.status(400).json({ success: false, message: 'Email já cadastrado' });
+    }
+    if (cnpj) {
+      const existenteCnpj = await Usuario.buscarPorCnpj(cnpj);
+      if (existenteCnpj) {
+        return res.status(400).json({ success: false, message: 'CNPJ já cadastrado' });
+      }
+    }
+    
     const id = await Usuario.criar({ nome, email, telefone, senha, cnpj });
     res.status(201).json({ success: true, message: 'Cadastro realizado com sucesso!', usuario: { id, nome, email } });
   } catch (error) {
     console.error('Erro no registro:', error);
-    res.status(500).json({ success: false, message: 'Erro interno ao criar usuário.' });
+    res.status(500).json({ success: false, message: 'Erro interno ao criar usuário: ' + error.message });
   }
 });
 

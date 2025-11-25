@@ -19,8 +19,8 @@
             
             <div class="auth-body">
                 <div class="auth-tabs">
-                    <button class="auth-tab active" onclick="switchAdminTab('login')">Entrar</button>
-                    <button class="auth-tab" onclick="switchAdminTab('register')">Cadastrar</button>
+                    <button class="auth-tab active" data-tab="login" onclick="switchAdminTab('login')">Entrar</button>
+                    <button class="auth-tab" data-tab="register" onclick="switchAdminTab('register')">Cadastrar</button>
                 </div>
 
                 <form class="auth-form active" id="loginForm">
@@ -115,8 +115,8 @@
             </div>
 
             <div class="tabs">
-                <button class="tab active" onclick="showTab('products')">📦 Produtos</button>
-                <button class="tab" onclick="showTab('categories')">🏷️ Categorias</button>
+                <button class="tab active" onclick="showTab('products', this)">📦 Produtos</button>
+                <button class="tab" onclick="showTab('categories', this)">🏷️ Categorias</button>
             </div>
 
             <div class="tab-content active" id="products">
@@ -223,15 +223,58 @@
             }
         }
 
+        function formatCNPJ(value) {
+            // Remove tudo que não é número
+            const cleaned = value.replace(/\D/g, '');
+            
+            // Limita a 14 dígitos
+            const limited = cleaned.slice(0, 14);
+            
+            // Aplica a máscara: XX.XXX.XXX/XXXX-XX
+            let formatted = '';
+            if (limited.length > 0) formatted = limited.slice(0, 2);
+            if (limited.length > 2) formatted += '.' + limited.slice(2, 5);
+            if (limited.length > 5) formatted += '.' + limited.slice(5, 8);
+            if (limited.length > 8) formatted += '/' + limited.slice(8, 12);
+            if (limited.length > 12) formatted += '-' + limited.slice(12, 14);
+            
+            return formatted;
+        }
+
+        function setupCNPJMask(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            input.addEventListener('input', function(e) {
+                e.target.value = formatCNPJ(e.target.value);
+            });
+        }
+
         function closeAuthModal() {
             document.getElementById('authModal').style.display = 'none';
         }
 
         function switchAdminTab(tabName) {
-            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            // Remove ativa de todas as abas
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Marca a aba correta como ativa
+            const activeTab = document.querySelector(`.auth-tab[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Remove ativo de todos os formulários
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-            document.getElementById(tabName === 'login' ? 'loginForm' : 'adminRegisterForm').classList.add('active');
+            
+            // Mostra o formulário correto
+            const formId = tabName === 'login' ? 'loginForm' : 'adminRegisterForm';
+            const activeForm = document.getElementById(formId);
+            if (activeForm) {
+                activeForm.classList.add('active');
+            }
         }
 
         // Variável global para armazenar dados do usuário logado
@@ -263,9 +306,19 @@
             setTimeout(() => { anim.style.display = 'none'; }, 2200);
         }
 
-        function showTab(tabName) {
+        function showTab(tabName, btn) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                // Fallback: procura pela aba pelo conteúdo
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    if (tab.textContent.trim().toLowerCase().includes(tabName.toLowerCase())) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
         }
@@ -427,6 +480,10 @@
         };
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Inicializar máscaras de CNPJ
+            setupCNPJMask('loginCnpj');
+            setupCNPJMask('adminRegisterCnpj');
+            
             document.getElementById('loginForm').addEventListener('submit', async function (event) {
                 event.preventDefault();
                 const cnpjRaw = document.getElementById('loginCnpj').value;

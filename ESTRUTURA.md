@@ -13,9 +13,6 @@ mvc/
 ├── 📚 API.md                    # Documentação de rotas/API
 ├── 📚 CONTRIBUTING.md           # Guia de contribuição
 ├── 📚 ESTRUTURA.md              # Este arquivo
-├── 📁 migrations/               # Scripts SQL para BD
-│   ├── 001_create_usuarios_table.sql
-│   └── 002_add_nota_to_usuarios.sql
 ├── 📁 src/                      # Código fonte da aplicação
 │   ├── 📁 config/               # Configurações
 │   │   ├── banco-dados.js       # Pool de conexão MySQL
