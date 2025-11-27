@@ -2,6 +2,37 @@
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 // A variável 'allProducts' é inicializada no ficheiro index.ejs (injetada pelo servidor).
 
+// --- FUNÇÕES DE MENU MOBILE ---
+function toggleMobileMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (hamburger) hamburger.classList.toggle('active');
+    if (mobileMenu) mobileMenu.classList.toggle('active');
+}
+
+// Fechar menu mobile ao fazer scroll
+window.addEventListener('scroll', () => {
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (hamburger && hamburger.classList.contains('active')) {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+    }
+});
+
+// Fechar menu mobile ao redimensionar para desktop
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (hamburger) hamburger.classList.remove('active');
+        if (mobileMenu) mobileMenu.classList.remove('active');
+    }
+});
+
 // --- FUNÇÕES DE MÁSCARAS ---
 function maskCNPJ(cnpj) {
     cnpj = cnpj.replace(/\D/g, '');
@@ -12,6 +43,15 @@ function maskCNPJ(cnpj) {
     if (cnpj.length <= 8) return cnpj.replace(/(\d{2})(\d{3})(\d+)/, '$1.$2.$3');
     if (cnpj.length <= 12) return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d+)/, '$1.$2.$3/$4');
     return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d+)/, '$1.$2.$3/$4-$5');
+}
+
+function maskTelefone(telefone) {
+    telefone = telefone.replace(/\D/g, '');
+    if (telefone.length > 11) telefone = telefone.slice(0, 11);
+    
+    if (telefone.length <= 2) return telefone;
+    if (telefone.length <= 6) return telefone.replace(/(\d{2})(\d+)/, '($1) $2');
+    return telefone.replace(/(\d{2})(\d{5})(\d+)/, '($1) $2-$3');
 }
 
 function setupCNPJMask(inputId) {
@@ -32,23 +72,90 @@ function setupCNPJMask(inputId) {
     });
 }
 
+function setupTelefoneMask(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = maskTelefone(this.value);
+    });
+    
+    input.addEventListener('blur', function() {
+        const clean = this.value.replace(/\D/g, '');
+        if (clean.length !== 11 && clean.length > 0) {
+            this.classList.add('invalid');
+        } else {
+            this.classList.remove('invalid');
+        }
+    });
+}
+
 // --- FUNÇÕES DE AUTENTICAÇÃO E MODAIS ---
 function openAuthModal() { 
     document.getElementById('authModal').style.display = 'flex';
-    // Setup CNPJ masks when modal opens
+    
+    // Reset scroll quando abrir o modal
+    const authBody = document.querySelector('.auth-body');
+    if (authBody) {
+        authBody.scrollTop = 0;
+    }
+    
+    // Setup masks when modal opens
     setupCNPJMask('loginCnpj');
     setupCNPJMask('adminRegisterCnpj');
+    setupTelefoneMask('registerPhone');
+    setupTelefoneMask('adminRegisterPhone');
 }
 function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
 
 function switchTab(tabName){
-    document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
-    // Encontra o botão pelo atributo e adiciona a classe 'active'
-    const buttonToActivate = document.querySelector(`.auth-tab[onclick="switchTab('${tabName}')"]`);
-    if(buttonToActivate) buttonToActivate.classList.add('active');
+    console.log('switchTab called with:', tabName);
+    
+    // Remove classe 'active' de todas as abas
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove classe 'active' de todos os formulários
+    document.querySelectorAll('.auth-form').forEach(form => {
+        form.classList.remove('active');
+    });
+    
+    // Ativa a aba correta
+    const tabs = document.querySelectorAll('.auth-tab');
+    tabs.forEach((tab, index) => {
+        if ((tabName === 'login' && index === 0) || (tabName === 'register' && index === 1)) {
+            tab.classList.add('active');
+        }
+    });
+    
+    // Ativa o formulário correto
+    const formId = tabName === 'login' ? 'loginForm' : 'registerForm';
+    const form = document.getElementById(formId);
+    if (form) {
+        form.classList.add('active');
+        console.log('Form activated:', formId);
+    } else {
+        console.log('Form not found:', formId);
+    }
 
-    document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
-    document.getElementById(tabName === 'login' ? 'loginForm' : 'registerForm').classList.add('active');
+    // Scroll para o topo quando mudar de aba
+    const authBody = document.querySelector('.auth-body');
+    if (authBody) {
+        authBody.scrollTop = 0;
+    }
+
+    // Atualiza o título e subtítulo do modal
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    
+    if (tabName === 'register') {
+        authTitle.textContent = 'Crie Sua Conta';
+        authSubtitle.textContent = 'Comece sua jornada saudável agora! 🌱';
+    } else {
+        authTitle.textContent = 'Bem-vindo ao Vida no Prato';
+        authSubtitle.textContent = 'Sua jornada saudável começa aqui 🌱';
+    }
 }
 
 function togglePassword(inputId){
@@ -121,13 +228,21 @@ function addToCart(event, productId, btn) {
 
 function updateCartCount() {
     const cartCountEl = document.getElementById('cartCount');
+    const cartCountMobileEl = document.getElementById('cartCountMobile');
     const count = cart.reduce((total, item) => total + item.quantity, 0);
     
     if (count > 0) {
-        cartCountEl.textContent = count;
-        cartCountEl.style.display = 'flex';
+        if (cartCountEl) {
+            cartCountEl.textContent = count;
+            cartCountEl.style.display = 'flex';
+        }
+        if (cartCountMobileEl) {
+            cartCountMobileEl.textContent = count;
+            cartCountMobileEl.style.display = 'flex';
+        }
     } else {
-        cartCountEl.style.display = 'none';
+        if (cartCountEl) cartCountEl.style.display = 'none';
+        if (cartCountMobileEl) cartCountMobileEl.style.display = 'none';
     }
 }
 
@@ -249,6 +364,10 @@ function closeProductModal() {
 document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
 
+    // Setup telefone mask para todos os campos
+    setupTelefoneMask('registerPhone');
+    setupTelefoneMask('adminRegisterPhone');
+
     const loggedUser = JSON.parse(localStorage.getItem('user'));
     updateUserUI(loggedUser);
 
@@ -283,7 +402,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nome = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const telefone = document.getElementById('registerPhone').value;
-            const cnpj = document.getElementById('registerCnpj') ? document.getElementById('registerCnpj').value : '';
             const senha = document.getElementById('registerPassword').value;
             const confirmSenha = document.getElementById('confirmPassword').value;
 
@@ -292,15 +410,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            if (senha.length < 6) {
+                alert('A senha deve ter no mínimo 6 caracteres!');
+                return;
+            }
+
             const response = await fetch('/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, telefone, senha, cnpj })
+                body: JSON.stringify({ nome, email, telefone, senha })
             });
 
             const data = await response.json();
             if (data.success) {
                 alert('Cadastro realizado com sucesso! Faça o login.');
+                closeAuthModal();
                 switchTab('login');
             } else {
                 alert(data.message);

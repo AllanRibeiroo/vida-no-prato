@@ -11,9 +11,12 @@ class Usuario {
     // Criptografa a senha antes de salvar
     const hash = await bcrypt.hash(senha, 10);
 
+    // Se cnpj for vazio ou undefined, passa null
+    const cnpjValue = cnpj && cnpj.trim() ? cnpj : null;
+
     const [result] = await pool.query(
       "INSERT INTO usuarios (nome, email, telefone, senha, cnpj, nota) VALUES (?, ?, ?, ?, ?, 5.00)",
-      [nome, email, telefone, hash, cnpj]
+      [nome, email, telefone, hash, cnpjValue]
     );
     return result.insertId;
   }

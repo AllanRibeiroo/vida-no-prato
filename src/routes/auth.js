@@ -11,11 +11,19 @@ router.post('/register', async (req, res) => {
     if (!nome || !email || !senha) {
       return res.status(400).json({ success: false, message: 'Nome, email e senha são obrigatórios' });
     }
+    
+    // Validar comprimento mínimo da senha
+    if (senha.length < 6) {
+      return res.status(400).json({ success: false, message: 'A senha deve ter no mínimo 6 caracteres' });
+    }
+    
     const existenteEmail = await Usuario.buscarPorEmail(email);
     if (existenteEmail) {
       return res.status(400).json({ success: false, message: 'Email já cadastrado' });
     }
-    if (cnpj) {
+    
+    // Só verifica CNPJ se foi fornecido (para colaboradores)
+    if (cnpj && cnpj.trim()) {
       const existenteCnpj = await Usuario.buscarPorCnpj(cnpj);
       if (existenteCnpj) {
         return res.status(400).json({ success: false, message: 'CNPJ já cadastrado' });

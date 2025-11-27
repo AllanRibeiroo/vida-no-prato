@@ -61,8 +61,8 @@
 
                     <div class="form-group">
                         <label for="adminRegisterCnpj">CNPJ do Estabelecimento</label>
-                        <input type="password" id="adminRegisterCnpj" placeholder="00.000.000/0000-00" required>
-                        <span class="password-toggle" onclick="toggleCNPJMask('adminRegisterCnpj')">👁️</span>
+                        <input type="text" id="adminRegisterCnpj" placeholder="00.000.000/0000-00" required>
+                        <span class="input-icon">🏢</span>
                     </div>
                     
                     <div class="form-group">
@@ -499,6 +499,7 @@
             // Inicializar máscaras de CNPJ
             setupCNPJMask('loginCnpj');
             setupCNPJMask('adminRegisterCnpj');
+            setupTelefoneMask('adminRegisterPhone');
             
             document.getElementById('loginForm').addEventListener('submit', async function (event) {
                 event.preventDefault();

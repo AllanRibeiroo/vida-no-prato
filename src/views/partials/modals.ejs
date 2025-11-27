@@ -3,7 +3,7 @@
         <div class="auth-header">
             <span class="auth-close" onclick="closeAuthModal()">&times;</span>
             <h2 id="authTitle">Bem-vindo ao Vida no Prato</h2>
-            <p>Sua jornada saudável começa aqui 🌱</p>
+            <p id="authSubtitle">Sua jornada saudável começa aqui 🌱</p>
         </div>
         
         <div class="auth-body">
@@ -31,6 +31,10 @@
                 
                 <div class="forgot-password">
                     <a href="#" onclick="showForgotPassword()">Esqueci minha senha</a>
+                </div>
+
+                <div class="signup-link">
+                    <p>Não tem conta? <a href="#" onclick="switchTab('register'); return false;">Cadastre-se aqui</a></p>
                 </div>
             </form>
 
@@ -70,6 +74,10 @@
                 <button type="submit" class="auth-submit">
                     Criar Conta
                 </button>
+
+                <div class="signup-link">
+                    <p>Já tem conta? <a href="#" onclick="switchTab('login'); return false;">Entre aqui</a></p>
+                </div>
             </form>
 
             <div class="social-login">
