@@ -9,12 +9,11 @@
 </head>
 
 <body>
-    <button onclick="window.location.href='/'" style="position: fixed; top: 20px; left: 20px; z-index: 250; padding: 10px 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px;">← Voltar ao Início</button>
-    
     <div id="authModal" class="auth-modal">
         <div class="auth-modal-content">
             <div class="auth-header">
                 <span class="auth-close" onclick="closeAuthModal()">&times;</span>
+                
                 <h2 id="authTitle">🌱 Acesso ao Painel de Colaboradores</h2>
                 <p>Bem-vindo! Faça login ou cadastre seu estabelecimento.</p>
             </div>
@@ -87,7 +86,6 @@
     <div id="adminPanelWrapper" style="display:none;">
         <header class="header">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <button onclick="window.location.href='/'" class="btn-voltar-inicio" style="padding: 10px 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px;">← Voltar ao Início</button>
                 <div style="flex: 1; text-align: center;">
                     <h1 style="margin-top:0; margin-bottom: 4px;">🌱 Vida no Prato - Painel dos Colaboradores</h1>
                     <p style="margin: 0; font-size: 0.95em;">Gerencie seus produtos e categorias</p>
@@ -266,8 +264,10 @@
             });
         }
 
+        // Função antiga foi removida. Agora o botão X usa window.location.href no HTML
         function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
+            // Mantida vazia ou redirecionando caso algum outro lugar chame
+            window.location.href = '/'; 
         }
 
         function switchAdminTab(tabName) {
