@@ -9,6 +9,8 @@
 </head>
 
 <body>
+    <button onclick="window.location.href='/'" style="position: fixed; top: 20px; left: 20px; z-index: 250; padding: 10px 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px;">← Voltar ao Início</button>
+    
     <div id="authModal" class="auth-modal">
         <div class="auth-modal-content">
             <div class="auth-header">
@@ -26,8 +28,8 @@
                 <form class="auth-form active" id="loginForm">
                     <div class="form-group">
                         <label for="loginCnpj">CNPJ (estabelecimento)</label>
-                        <input type="text" id="loginCnpj" placeholder="00.000.000/0000-00" required>
-                        <span class="input-icon">🏷️</span>
+                        <input type="password" id="loginCnpj" placeholder="00.000.000/0000-00" required>
+                        <span class="password-toggle" onclick="toggleCNPJMask('loginCnpj')">👁️</span>
                     </div>
                     
                     <div class="form-group">
@@ -60,8 +62,8 @@
 
                     <div class="form-group">
                         <label for="adminRegisterCnpj">CNPJ do Estabelecimento</label>
-                        <input type="text" id="adminRegisterCnpj" placeholder="00.000.000/0000-00" required>
-                        <span class="input-icon">🏢</span>
+                        <input type="password" id="adminRegisterCnpj" placeholder="00.000.000/0000-00" required>
+                        <span class="password-toggle" onclick="toggleCNPJMask('adminRegisterCnpj')">👁️</span>
                     </div>
                     
                     <div class="form-group">
@@ -85,7 +87,7 @@
     <div id="adminPanelWrapper" style="display:none;">
         <header class="header">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <a href="/" class="btn-voltar-inicio">← Voltar ao Início</a>
+                <button onclick="window.location.href='/'" class="btn-voltar-inicio" style="padding: 10px 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px;">← Voltar ao Início</button>
                 <div style="flex: 1; text-align: center;">
                     <h1 style="margin-top:0; margin-bottom: 4px;">🌱 Vida no Prato - Painel dos Colaboradores</h1>
                     <p style="margin: 0; font-size: 0.95em;">Gerencie seus produtos e categorias</p>
@@ -223,6 +225,20 @@
             }
         }
 
+        function toggleCNPJMask(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            // Se for um input de texto normal, muda para password (esconde com pontos)
+            if (input.type === 'text') {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            } else {
+                input.type = 'text';
+                toggle.textContent = '🙈';
+            }
+        }
+
         function formatCNPJ(value) {
             // Remove tudo que não é número
             const cleaned = value.replace(/\D/g, '');
@@ -245,8 +261,8 @@
             const input = document.getElementById(inputId);
             if (!input) return;
             
-            input.addEventListener('input', function(e) {
-                e.target.value = formatCNPJ(e.target.value);
+            input.addEventListener('input', function() {
+                this.value = formatCNPJ(this.value);
             });
         }
 

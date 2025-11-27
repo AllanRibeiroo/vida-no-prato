@@ -2,8 +2,43 @@
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 // A variável 'allProducts' é inicializada no ficheiro index.ejs (injetada pelo servidor).
 
+// --- FUNÇÕES DE MÁSCARAS ---
+function maskCNPJ(cnpj) {
+    cnpj = cnpj.replace(/\D/g, '');
+    if (cnpj.length > 14) cnpj = cnpj.slice(0, 14);
+    
+    if (cnpj.length <= 2) return cnpj;
+    if (cnpj.length <= 5) return cnpj.replace(/(\d{2})(\d+)/, '$1.$2');
+    if (cnpj.length <= 8) return cnpj.replace(/(\d{2})(\d{3})(\d+)/, '$1.$2.$3');
+    if (cnpj.length <= 12) return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d+)/, '$1.$2.$3/$4');
+    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d+)/, '$1.$2.$3/$4-$5');
+}
+
+function setupCNPJMask(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = maskCNPJ(this.value);
+    });
+    
+    input.addEventListener('blur', function() {
+        const clean = this.value.replace(/\D/g, '');
+        if (clean.length !== 14 && clean.length > 0) {
+            this.classList.add('invalid');
+        } else {
+            this.classList.remove('invalid');
+        }
+    });
+}
+
 // --- FUNÇÕES DE AUTENTICAÇÃO E MODAIS ---
-function openAuthModal() { document.getElementById('authModal').style.display = 'block'; }
+function openAuthModal() { 
+    document.getElementById('authModal').style.display = 'flex';
+    // Setup CNPJ masks when modal opens
+    setupCNPJMask('loginCnpj');
+    setupCNPJMask('adminRegisterCnpj');
+}
 function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
 
 function switchTab(tabName){

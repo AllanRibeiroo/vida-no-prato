@@ -839,6 +839,16 @@ body {
     transform: translateY(-2px);
 }
 
+.form-group input.invalid {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+.form-group input.invalid:focus {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
+}
+
 .form-group input::placeholder {
     color: #999;
 }
